@@ -1,0 +1,5 @@
+Tightly Coupled: components and classes are highly dependent on each other. which leads to scalibility issues
+
+Loosely coupled: components have minimum dependency.
+
+Use interfaces.

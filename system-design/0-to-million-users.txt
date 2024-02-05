@@ -1,0 +1,85 @@
+Vertical Scale: add more CPU and memeory
+
+Disadvantages:
+    1. can't give infinit memory and cpu
+    2. if one goes down, system is not available
+
+Horizontal: Add more servers.
+
+How to scale web tier?
+
+Add more servers and keep them behind a load balancer. LB will automatically handle how to send the traffic.
+
+Advantage:
+    1. high availability. If one goes down, another is there
+    2. Easily Scalable. If 2 can't handle the traffic, add more servers. LB will automatically handle the traffic.
+
+
+
+How to scale Database tier:
+
+Add multiple replicas of a DB. Use master/slave arct. All writes will go to the master node and reads to the slave node.
+
+If one slave goes down, reads will go to other slaves and if all slaves go down, traffic will go to master until slaves are up.
+
+If master goes down, one of the slaves will become a master but data needs to synced before elected it a master.
+
+
+How to reduce load and response time:
+
+For expensive operations, we can add cache and serve static files using CDN (content delivery network).
+
+Cache: A temporry storage where data is stored.
+
+Key Considerations while using cache?
+    1. when to use? if read operation is more than write operation/
+    2. when to invalidate data which is in cache.
+    3. when to sync data from the upstream source
+    4. cache is single point of failure. consider adding multiple cache for different data centers.
+    5. evection policy: if cache is full, which data to delete? LRU, LFU, FIFO
+
+CDN: geographically dispersed server. stores static files (image, html, css, js).
+
+Key Considerations:
+    1. run by a third party. Cost is a factor. If data is changing frequently or can be moved outside of cdn, do that
+    2. when to expire the data?
+    3. consistency: when to sync
+    4. how to handle failure? if cdn is down, fall back to the original server
+
+
+How to scale web tier horizontally?
+
+Use state less web tier architecture. Don't keep any session state( can be a user session ) on the the server.
+Add an extra shared storage and keep that there
+
+
+when have millions of users at different locations, how to serve data?
+
+Need to have data centers in the appropirate zones. GeoDNS is a service which resolve a domain to a ip which is geographically closer
+to the user.
+
+Key considerations for data center:
+    1. Need a service which will resolve to closer data center ip
+    2. if one data center is not available, traffic will be routed to the other one. in that case, if the data is not available
+        in the data center or data is not consistent. Need to have a strategy for syncing data between data centers.
+
+How to decouple most of the components of a server so it's easier to scale?
+
+Use a messaging queue in between, it is for async communication. even if either one of the services is down, won't affect the entire system.
+
+How to Scale Data-tier?
+
+Use vertical scaling for data bases
+    1. physical limitations
+    2. single point of failure
+    3. it's expensive
+
+Do horizontal scaling which is sharding. Sharding is having multiple db servers and disturbuting data between them.
+Each shard contains unique data. According to some hash function, we decide in which shard to store the data and how to
+retrieve it.
+Sharding key is important. sharding key are some of the columns according to which we do the partiton of data.
+
+    1. resharding: when one shard is full because of data load or the uneven data distribution. in that case, need to relook
+        at hash function and redistribute the data
+    2. celebrity problem: most frequently used data ends up in the same shard, load will increase on that shard
+    3. not possible to do join operations.
